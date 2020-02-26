@@ -429,3 +429,182 @@ public double findMedianSortedArrays(int[] nums1, int[] nums2) {
 
 ```
 
+
+
+## 最长回文子串
+
+```
+给定一个字符串 s，找到 s 中最长的回文子串。你可以假设 s 的最大长度为 1000。
+
+示例 1：
+输入: "babad"
+输出: "bab"
+注意: "aba" 也是一个有效答案。
+
+示例 2：
+输入: "cbbd"
+输出: "bb"
+```
+
+
+
+### 解法1：暴力求解1 =>过于复杂
+
+```java
+public String longestPalindrome(String s) {
+    String str = "";
+    int i = 0, j = s.length() - 1;
+    int max_len = 0;
+    if (s.length() == 1) {
+        return s;
+    }
+    /* 每一轮内循环都是固定指针i，在内部进行比较 */
+    while (i != s.length()) {
+        String substr;
+        /* j从后面往前面遍历，双指针 */
+        while (j != i) {
+            // 遍历时不能使i和j移动，就用m和n记录
+            int m = i, n = j, k = j;
+            /* 每一轮去查找回文串 */
+            while (m < n) {
+                if (s.charAt(m) == s.charAt(n)) {
+                    m++;
+                    n--;
+                } else {
+                    m = i;
+                    n = --k;
+                }
+            }
+            substr = s.substring(i, k + 1);
+            // 如果找到更长的子串，则进行替换
+            max_len = Math.max(max_len, substr.length());
+            if (max_len == substr.length()) {
+                str = substr;
+            }
+            j--;
+        }
+        i++;
+        // 开始新的一轮遍历之前，都要重新置指针j到字符串某尾
+        j = s.length() - 1;
+    }
+    return str;
+}
+```
+
+
+
+### 解法二：暴力求解2
+
+暴力求解，列举所有的子串，判断是否为回文串，保存最长的回文串。
+
+```java
+public boolean isPalindromic(String s) {
+    int len = s.length();
+    for (int i = 0; i < len / 2; i++) {
+        if (s.charAt(i) != s.charAt(len - i - 1)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// 暴力解法
+public String longestPalindrome(String s) {
+    String ans = "";
+    int max = 0;
+    int len = s.length();
+    for (int i = 0; i < len; i++)
+        for (int j = i + 1; j <= len; j++) {
+            String test = s.substring(i, j);
+            if (isPalindromic(test) && test.length() > max) {
+                ans = s.substring(i, j);
+                max = Math.max(max, ans.length());
+            }
+        }
+    return ans;
+}
+```
+
+时间复杂度：两层 for 循环 O(n²），for 循环里边判断是否为回文 O(n），所以时间复杂度为 **O(n³）**。
+
+空间复杂度：**O(1）**，常数个变量。
+
+
+
+### 解法3 ：动态规划
+
+![image-20200226152850486](https://tva1.sinaimg.cn/large/0082zybply1gc9u4gxgeyj30y10u045p.jpg)
+
+```java
+public String longestPalindrome(String s) {
+    int length = s.length();
+    boolean[][] P = new boolean[length][length];
+    int maxLen = 0;
+    String maxPal = "";
+    for (int len = 1; len <= length; len++) 	//遍历所有的长度
+        for (int start = 0; start < length; start++) {
+            int end = start + len - 1;
+            if (end >= length) 		//下标已经越界，结束本次循环
+                break;
+            P[start][end] = (len == 1 || len == 2 || P[start + 1][end - 1]) && s.charAt(start) == s.charAt(end); //长度为 1 和 2 的单独判断下
+            if (P[start][end] && len > maxLen) {
+                maxPal = s.substring(start, end + 1);
+            }
+        }
+    return maxPal;
+}
+```
+
+
+
+### 解法4：扩展中心法
+
+我们知道回文串一定是对称的，所以我们可以每次循环选择一个中心，进行左右扩展，判断左右字符是否相等即可。由于存在奇数的字符串和偶数的字符串，所以我们需要从一个字符开始扩展，或者从两个字符之间开始扩展，所以总共有 `n+n-1` 个中心。
+
+![image-20200226153038312](https://tva1.sinaimg.cn/large/0082zybply1gc9u691vloj30mk0cgwi8.jpg)
+
+```java
+/**
+ * 中心扩展算法 我们观察到回文中心的两侧互为镜像 因此，回文可以从它的中心展开，并且只有2n−1个这样的中心
+ * 
+ * @param s
+ * @return 最长回文串
+ */
+public String longestPalindrome(String s) {
+  if (s == null || s.length() < 1) {
+    return "";
+  }
+  int start = 0, end = 0;
+  for (int i = 0; i < s.length(); i++) {
+    // 针对回文串是奇数的情况
+    int len1 = expandAroundCenter(s, i, i);
+    // 针对回文串是偶数的情况
+    int len2 = expandAroundCenter(s, i, i + 1);
+    int len = Math.max(len1, len2);
+    if (len > end - start) {
+      // 屏蔽了len1和len2的情况，根据取整规则把start统一处理一下
+      start = i - (len - 1) / 2;
+      end = i + len / 2;
+    }
+  }
+  return s.substring(start, end + 1);
+}
+
+/**
+ * 
+ * @param s
+ * @param left
+ * @param right
+ * @return 每一次通过中心判定法得到的回文串长度
+ */
+private int expandAroundCenter(String s, int left, int right) {
+  int L = left, R = right;
+  while (L >= 0 && R < s.length() && s.charAt(L) == s.charAt(R)) {
+    L--;
+    R++;
+  }
+  // 当完成上面while循环的时候，L和R的位置分别处于正好匹配的下一个，所以是(R-1)-(L+1)+1
+  return R - L - 1;
+}
+```
+

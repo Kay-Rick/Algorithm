@@ -1,3 +1,13 @@
+/*
+ * @Author: Rick
+ * @Email: Kay_Rick@outlook.com
+ * @Github: https://github.com/Kay-Rick
+ * @Date: 2020-02-15 00:21:56
+ * @LastEditors: Rick
+ * @LastEditTime: 2020-02-26 15:39:51
+ * @FilePath: /LeetCode/Users/rick/Desktop/GitHub_Reposity/Algorithm/src/LeetCode~part1/Test1001.java
+ * @Description: Description
+ */
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,13 +55,5 @@ public class Test1001 {
                 return new int[]{i,map.get(temp)};
         }
         throw new IllegalArgumentException("No two sum solution");
-    }
-
-    public static void main(String[] args) {
-        int [] num = {2, 7, 11, 15};
-        int [] res;
-        res = twoSum1(num,9);
-        System.out.println(res[0]);
-        System.out.println(res[1]);
     }
 }
