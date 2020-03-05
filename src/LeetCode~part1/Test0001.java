@@ -16,7 +16,7 @@ import java.util.Map;
  * @Date: 2019/12/7 18:57
  * @Description:
  */
-public class Test1001 {
+public class Test0001 {
 
     /**
      * 暴力求解： 时间复杂度较高

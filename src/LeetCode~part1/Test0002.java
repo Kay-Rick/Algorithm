@@ -3,7 +3,7 @@
  * @Date: 2019/12/7 20:02
  * @Description:
  */
-public class Test1002 {
+public class Test0002 {
 
     /**
      * 注意空指针异常的情况
