@@ -10,6 +10,12 @@
 - [柱状图中最大的矩形](#%e6%9f%b1%e7%8a%b6%e5%9b%be%e4%b8%ad%e6%9c%80%e5%a4%a7%e7%9a%84%e7%9f%a9%e5%bd%a2)
   - [解法1：暴力法](#%e8%a7%a3%e6%b3%951%e6%9a%b4%e5%8a%9b%e6%b3%95)
   - [解法2：有序栈](#%e8%a7%a3%e6%b3%952%e6%9c%89%e5%ba%8f%e6%a0%88)
+- [有效的字母异位词](#%e6%9c%89%e6%95%88%e7%9a%84%e5%ad%97%e6%af%8d%e5%bc%82%e4%bd%8d%e8%af%8d)
+  - [解法1：排序](#%e8%a7%a3%e6%b3%951%e6%8e%92%e5%ba%8f)
+  - [解法2：哈希表](#%e8%a7%a3%e6%b3%952%e5%93%88%e5%b8%8c%e8%a1%a8)
+- [字母异位词分组](#%e5%ad%97%e6%af%8d%e5%bc%82%e4%bd%8d%e8%af%8d%e5%88%86%e7%bb%84)
+  - [解法1：排序数组分类](#%e8%a7%a3%e6%b3%951%e6%8e%92%e5%ba%8f%e6%95%b0%e7%bb%84%e5%88%86%e7%b1%bb)
+  - [解法2：引入下标](#%e8%a7%a3%e6%b3%952%e5%bc%95%e5%85%a5%e4%b8%8b%e6%a0%87)
 ## 环形链表
 ```
 给定一个链表，判断链表中是否有环。
@@ -286,6 +292,147 @@ public:
             maxarea = max(maxarea, heights[temp] * (size - s.top() - 1));
         }
         return maxarea;
+    }
+};
+```
+
+
+
+## 有效的字母异位词
+
+```
+给定两个字符串 s 和 t ，编写一个函数来判断 t 是否是 s 的字母异位词。
+
+示例 1:
+输入: s = "anagram", t = "nagaram"
+输出: true
+示例 2:
+输入: s = "rat", t = "car"
+输出: false
+说明:
+你可以假设字符串只包含小写字母。
+
+进阶:
+如果输入字符串包含 unicode 字符怎么办？你能否调整你的解法来应对这种情况？
+```
+
+
+
+### 解法1：排序
+
+通过将s 的字母重新排列成 t 来生成变位词。因此，如果 T 是 S 的变位词，对两个字符串进行排序将产生两个相同的字符串。此外，如果 s 和 t 的长度不同，t 不能是 s 的变位词，我们可以提前返回。
+
+```java
+public boolean isAnagram(String s, String t) {
+    if (s.length() != t.length()) {
+        return false;
+    }
+    char[] str1 = s.toCharArray();
+    char[] str2 = t.toCharArray();
+    Arrays.sort(str1);
+    Arrays.sort(str2);
+    return Arrays.equals(str1, str2);
+}
+```
+
+
+
+### 解法2：哈希表
+
+为了检查 t 是否是 s 的重新排列，我们可以计算两个字符串中每个字母的出现次数并进行比较。因为 S 和 T 都只包含 A−Z 的字母，所以一个简单的 26 位计数器表就足够了。
+**我们需要两个计数器数表进行比较吗？实际上不是，因为我们可以用一个计数器表计算s 字母的频率，用 t 减少计数器表中的每个字母的计数器，然后检查计数器是否回到零**
+
+```java
+public boolean isAnagram(String s, String t) {
+    if (s.length() != t.length()) {
+        return false;
+    }
+    int[] counter = new int[26];
+    for (int i = 0; i < s.length(); i++) {
+        counter[s.charAt(i) - 'a']++;
+        counter[t.charAt(i) - 'a']--;
+    }
+    for (int count : counter) {
+        if (count != 0) {
+            return false;
+        }
+    }
+    return true;
+}
+```
+
+
+
+## 字母异位词分组
+
+```
+给定一个字符串数组，将字母异位词组合在一起。字母异位词指字母相同，但排列不同的字符串。
+
+示例:
+输入: ["eat", "tea", "tan", "ate", "nat", "bat"],
+输出:
+[
+  ["ate","eat","tea"],
+  ["nat","tan"],
+  ["bat"]
+]
+说明：
+所有输入均为小写字母。
+不考虑答案输出的顺序。
+```
+
+
+
+### 解法1：排序数组分类
+
+维护一个映射 `ans : {String -> List}`，其中每个键 KK 是一个排序字符串，每个值是初始输入的字符串列表，排序后等于 K
+
+![image-20200310000617545](https://tva1.sinaimg.cn/large/00831rSTly1gco4ijmo0gj30r60emq5q.jpg)
+
+```java
+class Solution {
+    public List<List<String>> groupAnagrams(String[] strs) {
+        if (strs.length == 0) return new ArrayList();
+        Map<String, List> ans = new HashMap<String, List>();
+        for (String s : strs) {
+            char[] ca = s.toCharArray();
+            Arrays.sort(ca);
+            String key = String.valueOf(ca);
+            if (!ans.containsKey(key)) ans.put(key, new ArrayList());
+            ans.get(key).add(s);
+        }
+        return new ArrayList(ans.values());
+    }
+}
+```
+
+
+
+### 解法2：引入下标
+
+```c++
+class Solution {
+public:
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        vector<vector<string>> res;
+        int sub = 0;                    // 记录结果集res的下标
+        string tmp;
+        unordered_map <string,int> work;
+        for (auto str : strs) {
+            tmp = str;                  // 排序后将tmp作为key进行标识
+            sort(tmp.begin(), tmp.end());
+            // 如果能找到同一个组里面,就在该异位词标识的(key)分组work[tmp]下加
+            if (work.count(tmp)) {
+                res[work[tmp]].push_back(str);
+            }else
+            {
+                vector<string> vec (1, str);  // 初始化一个长度为1的数组为str
+                res.push_back(vec);
+                // 在该分组下面在res结果集的下标,方便于我们后续能够找到合适的分组
+                work[tmp] = sub++;   
+            }
+        }
+        return res;
     }
 };
 ```
