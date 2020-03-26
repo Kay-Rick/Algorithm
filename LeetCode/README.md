@@ -437,3 +437,278 @@ public:
 };
 ```
 
+
+
+## 括号生成
+
+```
+给出 n 代表生成括号的对数，请你写出一个函数，使其能够生成所有可能的并且有效的括号组合。
+
+例如，给出 n = 3，生成结果为：
+
+[
+  "((()))",
+  "(()())",
+  "(())()",
+  "()(())",
+  "()()()"
+]
+```
+
+
+
+### 深度优先
+
+```c++
+class Solution {
+public:
+    vector<string> generateParenthesis(int n) {
+        _generate(0, 0, n, "");
+        return result;
+    }
+    /**
+     * @brief 产生结果的递归函数
+     * @param left 放入左括号的个数
+     * @param right 放入右括号的个数
+     * @param n 层数
+     * @param s 正在处理的结果集
+     */
+    void _generate(int left, int right, int n, string s) {
+        // 递归终止条件
+        if (left == n && right == n) {
+            result.push_back(s);
+            return;
+        }
+        // 关注本层递归逻辑处理，这里对结果合法性的判断
+        if (left < n)       /* 只要左括号没有超标那么就可以放左括号 */
+            _generate(left + 1, right, n, s + "(");
+        if (left > right)   /* 右括号个数没有超过左括号个数就可以放右括号 */
+            _generate(left, right + 1, n, s + ")");
+    }
+private:
+    vector<string> result;
+};
+```
+
+![image-20200326174535003](https://tva1.sinaimg.cn/large/00831rSTgy1gd7h1lcig9j311q0nytds.jpg)
+
+
+
+## Pow(x, n)
+
+```
+实现 pow(x, n) ，即计算 x 的 n 次幂函数。
+
+示例 1:
+
+输入: 2.00000, 10
+输出: 1024.00000
+示例 2:
+
+输入: 2.10000, 3
+输出: 9.26100
+示例 3:
+
+输入: 2.00000, -2
+输出: 0.25000
+解释: 2-2 = 1/22 = 1/4 = 0.25
+说明:
+
+-100.0 < x < 100.0
+n 是 32 位有符号整数，其数值范围是 [−231, 231 − 1] 。
+```
+
+
+
+### 分治法
+
+```c++
+class Solution {
+  public:
+    double myPow(double x, int n) {
+        long long N = n;
+        // 对负数情况进行处理
+        if (N < 0) {
+            x = 1 / x;
+            N = -N;
+        }
+        return fastPow(x, N);
+    }
+    double fastPow(double x, int n) {
+        // 递归终止条件
+        if (n == 0)
+            return 1.0;
+        // 当前层逻辑处理（分治）
+        double half = fastPow(x, n / 2);
+        if (n % 2 == 0)
+            return half * half;
+        else
+            return half * half * x;
+    }
+};
+```
+
+
+
+## 爬楼梯
+
+```
+假设你正在爬楼梯。需要 n 阶你才能到达楼顶。
+
+每次你可以爬 1 或 2 个台阶。你有多少种不同的方法可以爬到楼顶呢？
+
+注意：给定 n 是一个正整数。
+
+示例 1：
+
+输入： 2
+输出： 2
+解释： 有两种方法可以爬到楼顶。
+1.  1 阶 + 1 阶
+2.  2 阶
+示例 2：
+
+输入： 3
+输出： 3
+解释： 有三种方法可以爬到楼顶。
+1.  1 阶 + 1 阶 + 1 阶
+2.  1 阶 + 2 阶
+3.  2 阶 + 1 阶
+```
+
+
+
+### 动态规划(斐波那契数列)
+
+若暴力求解会导致超时，因此我们要记住中间计算出来的结果，就是动态规划的思想
+
+```c++
+class Solution {
+  public:
+    int climbStairs(int n) {
+        if (n == 1)
+            return 1;
+        vector<int> steps(n, 0);
+        steps[0] = 1;
+        steps[1] = 2;
+        for (int i = 2; i < steps.size(); i++) {
+            steps[i] = steps[i - 1] + steps[i - 2];
+        }
+        return steps[n - 1];
+    }
+};
+```
+
+
+
+## 子集
+
+```
+给定一组不含重复元素的整数数组 nums，返回该数组所有可能的子集（幂集）。
+
+说明：解集不能包含重复的子集。
+
+示例:
+
+输入: nums = [1,2,3]
+输出:
+[
+  [3],
+  [1],
+  [2],
+  [1,2,3],
+  [1,3],
+  [2,3],
+  [1,2],
+  []
+]
+```
+
+
+
+### 递归
+
+对于每一个元素而言，都是有两种情况：选或者不选，直到递归到最后一个元素
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> result;     // 递归存结果集一定要放在public里面
+    vector<vector<int>> subsets(vector<int> &nums) {
+        vector<int> temp;
+        helper(nums, temp, 0);
+        return result;
+    }
+private:
+    /**
+     * @brief 辅助递归函数
+     * @param nums 
+     * @param list 
+     * @param index 
+     */
+    void helper(vector<int>& nums, vector<int> list, int index) {
+        // 递归终止条件
+        if (nums.size() == index) {
+            result.push_back(list);
+            return;
+        }
+        helper(nums, list, index + 1);  // 不选择该下标的元素
+        list.push_back(nums[index]);    // 选择该下标的元素
+        helper(nums, list, index + 1);
+        list.pop_back();
+    }
+};
+```
+
+```c++
+class Solution {
+  public:
+    vector<vector<int>> subsets(vector<int> &nums) {
+        vector<vector<int>> subs;
+        vector<int> sub;
+        subsets(nums, 0, sub, subs);
+        return subs;
+    }
+
+  private:
+    void subsets(vector<int> &nums, int i, vector<int> &sub, vector<vector<int>> &subs) {
+        subs.push_back(sub);
+        for (int j = i; j < nums.size(); j++) {
+            sub.push_back(nums[j]);
+            subsets(nums, j + 1, sub, subs);
+            sub.pop_back();
+        }
+    }
+};
+```
+
+
+
+### 迭代
+
+开始假设输出子集为空，每一步都向子集添加新的整数，并生成新的子集。
+
+Using `[1, 2, 3]` as an example, the iterative process is like:
+
+1. Initially, one empty subset `[[]]`
+2. Adding `1` to `[]`: `[[], [1]]`;
+3. Adding `2` to `[]` and `[1]`: `[[], [1], [2], [1, 2]]`;
+4. Adding `3` to `[]`, `[1]`, `[2]` and `[1, 2]`: `[[], [1], [2], [1, 2], [3], [1, 3], [2, 3], [1, 2, 3]]`.
+
+```c++
+class Solution {
+  public:
+    vector<vector<int>> subsets(vector<int> &nums) {
+        vector<vector<int>> result = {{}};
+        for (int num : nums) {
+            int n = result.size();
+            for (int i = 0; i < n; i++) {
+                result.push_back(result[i]);  // 原来集合的子集全是下一个集合的元素
+                result.back().push_back(num); // 原来子集里面加上新添加的元素
+            }
+        }
+        return result;
+    }
+};
+```
+
