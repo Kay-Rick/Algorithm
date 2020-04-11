@@ -80,4 +80,3 @@ class ListNode{
         val = x;
     }
 }
-
