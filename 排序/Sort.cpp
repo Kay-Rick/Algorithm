@@ -230,21 +230,24 @@ void quickSort (int array[], int n) {
 
 /**
  * @brief 向下过滤，将N个元素的数组中以A[p]为根的子堆调整为最大堆
- * @param A 
- * @param p 
- * @param N 
+ * @param A 待过滤数组
+ * @param p 根节点编号
+ * @param N 数组长度
  */
 void PercDown(int A[], int p, int N) {
     int Parent, Child;
     int X;
-
-    X = A[p]; /* 取出根结点存放的值 */
+    // 取出根结点存放的值
+    X = A[p];
     for (Parent = p; (Parent * 2 + 1) < N; Parent = Child) {
-        Child = Parent * 2 + 1; // 从0开始，不同之前堆是从1开始
+        // 从0开始，不同之前堆是从 1 开始
+        Child = Parent * 2 + 1;
+        // Child指向左右子结点的较大者
         if ((Child != N - 1) && (A[Child] < A[Child + 1]))
-            Child++; /* Child指向左右子结点的较大者 */
+            Child++;
+        // 找到了合适位置，跳出循环
         if (X >= A[Child])
-            break; /* 找到了合适位置 */
+            break; 
         else       /* 下滤X */
             A[Parent] = A[Child];
     }
@@ -252,16 +255,18 @@ void PercDown(int A[], int p, int N) {
 }
 
 /**
- * @brief 堆排序
- * @param A 
- * @param N 
+ * @brief 堆排序 时间复杂度 O(nlog n) 空间复杂度
+ * @param A 待排序数组
+ * @param N 数组长度
  */
 void HeapSort(int A[], int N) {
     int i;
-    for (i = N / 2; i >= 0; i--) /* 建立最大堆 */
+    // 从第一个非叶子节点开始，从右至左调整结构，建立最大堆
+    for (i = N / 2; i >= 0; i--) 
         PercDown(A, i, N);
+    // 调整堆结构 + 交换堆顶元素与末尾元素
     for (i = N - 1; i > 0; i--) {
-        /* 删除最大堆顶 */
+        // 不断删除堆顶元素
         swap(A[0], A[i]);
         PercDown(A, 0, i);
     }
