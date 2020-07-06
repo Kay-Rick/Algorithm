@@ -249,7 +249,7 @@ void PercDown(int array[], int p, int N) {
         if (X >= array[child])
             break; 
         else       /* 下滤X */
-            array[parent]= array[child];
+            array[parent] = array[child];
     }
     array[parent] = X;
 }
@@ -271,4 +271,36 @@ void HeapSort(int array[], int N) {
         PercDown(array, 0, i);
     }
 }
+
+
+/**
+ * @brief 桶排序：事先知道序列中记录都位于某个小区间段[0, m]内
+ *        将具有相同值的记录都分配到同一个桶中，然后依次按照编号从桶中取出记录，组成有序序列
+ *        时间复杂度O(n + m) 空间复杂度O(n + m)，适用于m相对于n很小的情况
+ * @param array 待排数组
+ * @param n 序列个数
+ * @param m 区间
+ */
+void bucketSort(int array[], int n, int m) {
+    // 临时数组
+    int* temp = new int[n];
+    // 桶容量计数器
+    int* count = new int[m];
+    // 把数组拷贝到临时数组中
+    for (int i = 0; i < n; i++) 
+        temp[i] = array[i];
+    // 桶计数器进行初始化
+    for (int i = 0; i < m; i++) 
+        count[i] = 0;
+    // 统计每个元素出现次数
+    for (int i = 0; i < n; i++) 
+        count[array[i]]++;
+    // 统计小于等于i的元素个数
+    for (int i = 1; i < m; i++) 
+        count[i] = count[i] + count[i - 1];
+    // 从尾部开始按照位置填充进数组(确定位置放进去)
+    for (int i = n - 1; i >= 0; i--) 
+        array[--count[temp[i]]] = temp[i];
+}
+
 
