@@ -48,7 +48,7 @@ void insertSort (int array[], int n) {
         // 记录当前扑克牌
         int temp = array[i];
         int j = i;
-        // 从后往前找到空位
+        // 在有序序列中从后往前找到空位
         for (;j > 0 && array[j - 1] > temp; j--) {
             array[j] = array[j - 1];
         }
@@ -69,6 +69,7 @@ void selectSort (int array[], int n) {
     // 进行 n - 1轮比较
     for (int i = 0;i < n - 1; i++) {
         int min = i;
+        // 找最小的元素
         for (int j = i + 1; j < n; j++) {
             // 记录目前能找最小元素值的下标
             if (array[j] < array[min]) 
@@ -137,7 +138,7 @@ void _merge(int array[], int temp[], int start, int mid, int end) {
         temp[k++] = array[i++];
     while (j <= end)
         temp[k++] = array[j++];
-    // 将排好序的存回array中low到high这区间
+    // 将排好序的存回 array 中 start 到 end 这区间
     for (int i = start, k = 0; i <= end; i++, k++) {
         array[i] = temp[k];
     }
@@ -149,7 +150,7 @@ void _merge(int array[], int temp[], int start, int mid, int end) {
  * @param start 
  * @param end 
  */
-void mSort (int array[], int temp [],int start, int end) {
+void mSort (int array[], int temp[], int start, int end) {
     if (start < end) {
         int mid = (start + end) / 2;
         mSort(array, temp, start, mid);
@@ -229,46 +230,45 @@ void quickSort (int array[], int n) {
 
 
 /**
- * @brief 向下过滤，将N个元素的数组中以A[p]为根的子堆调整为最大堆
- * @param A 待过滤数组
+ * @brief 向下过滤，将N个元素的数组中以array[p]为根的子堆调整为最大堆
+ * @param array 待过滤数组
  * @param p 根节点编号
  * @param N 数组长度
  */
-void PercDown(int A[], int p, int N) {
-    int Parent, Child;
-    int X;
+void PercDown(int array[], int p, int N) {
+    int parent, child;
     // 取出根结点存放的值
-    X = A[p];
-    for (Parent = p; (Parent * 2 + 1) < N; Parent = Child) {
+    int X = array[p];
+    for (parent = p; (parent * 2 + 1) < N; parent = child) {
         // 从0开始，不同之前堆是从 1 开始
-        Child = Parent * 2 + 1;
-        // Child指向左右子结点的较大者
-        if ((Child != N - 1) && (A[Child] < A[Child + 1]))
-            Child++;
+        child = parent * 2 + 1;
+        // child指向左右子结点的较大者
+        if ((child != N - 1) && (array[child] < array[child + 1]))
+            child++;
         // 找到了合适位置，跳出循环
-        if (X >= A[Child])
+        if (X >= array[child])
             break; 
         else       /* 下滤X */
-            A[Parent] = A[Child];
+            array[parent]= array[child];
     }
-    A[Parent] = X;
+    array[parent] = X;
 }
 
 /**
  * @brief 堆排序 时间复杂度 O(nlog n) 空间复杂度
- * @param A 待排序数组
+ * @param array 待排序数组
  * @param N 数组长度
  */
-void HeapSort(int A[], int N) {
+void HeapSort(int array[], int N) {
     int i;
     // 从第一个非叶子节点开始，从右至左调整结构，建立最大堆
     for (i = N / 2; i >= 0; i--) 
-        PercDown(A, i, N);
+        PercDown(array, i, N);
     // 调整堆结构 + 交换堆顶元素与末尾元素
     for (i = N - 1; i > 0; i--) {
         // 不断删除堆顶元素
-        swap(A[0], A[i]);
-        PercDown(A, 0, i);
+        swap(array[0], array[i]);
+        PercDown(array, 0, i);
     }
 }
 
