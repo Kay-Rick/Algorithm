@@ -56,6 +56,13 @@ public:
 
     }
     
+    /**
+     * @brief 
+     * @param n 最大元素值
+     * @param begin 从begin开始选元素加入集合
+     * @param level 当前选了几个元素加入集合
+     * @param path 当前存储的集合
+     */
     void dfs (int n, int begin, int level, vector<int>& path) {
         if (path.size() == level) {
             res.push_back(path);

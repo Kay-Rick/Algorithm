@@ -53,11 +53,9 @@ class Solution {
 public:
     vector<vector<int>> res;
     vector<int> path;
-    vector<bool> st;
     vector<vector<int>> subsets(vector<int>& nums) {
         if (nums.size() == 0) 
             return res;
-        st.resize(nums.size(), false);
         dfs(nums, 0, path);
         return res;
     }
