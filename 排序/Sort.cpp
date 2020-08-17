@@ -9,6 +9,8 @@
  * 
  */
 #include <iostream>
+#include <vector>
+#include <algorithm>
 using namespace std;
 
 
@@ -49,8 +51,9 @@ void insertSort (int array[], int n) {
         int temp = array[i];
         int j = i;
         // 在有序序列中从后往前找到空位
-        for (;j > 0 && array[j - 1] > temp; j--) {
+        while (j >= 1 && array[j - 1] > temp) {
             array[j] = array[j - 1];
+            j--;
         }
         // 插入
         array[j] = temp;
@@ -100,14 +103,14 @@ void shellSort (int array[], int n) {
         // 每一趟相当于以 d 为步数的插入排序
         for (int i = d; i < n; i++) {
             temp = array[i];
-            j = i - d;
+            j = i;
             // 查找插入的位置，这里j>=0放在前面，短路运算会直接跳出循环
-            while (j >= 0 && array[j] > temp) {
-                array[j + d] = array[j];
+            while (j >= d && array[j - d] > temp) {
+                array[j] = array[j - d];
                 j -= d;
             }
             // 插入排序
-            array[j + d] = temp;
+            array[j] = temp;
         }
         d /= 2;
     }
@@ -172,29 +175,6 @@ void mergeSort (int array[], int n) {
     }
 }
 
-
-
-/**
- * @brief 选择快速排序的基准
- * @param array 
- * @param left 
- * @param right 
- * @return int 
- */
-int selectPivot(int array[], int left, int right) {
-    int center = (left + right) / 2;
-    // 进行排列使 array[left] <= array[center] <= array[right]
-    if (array[left] > array[center])
-        swap(array[left], array[center]);
-    if (array[left] > array[right])
-        swap(array[left], array[right]);
-    if (array[center] > array[right])
-        swap(array[center], array[right]);
-    //  将基准pivot藏到右边
-    swap(array[center], array[right - 1]);
-    // 只需要考虑array[left + 1] … array[right - 2]
-    return array[right - 1];
-}
 /**
  * @brief 快速排序核心递归函数
  * @param array 
@@ -202,21 +182,20 @@ int selectPivot(int array[], int left, int right) {
  * @param right 
  */
 void qSort (int array[], int left, int right) {
-    int pivot = selectPivot(array, left, right);
-    int low = left, high = right - 1;
+    if (left >= right)
+        return;
+    int pivot = array[left + right >> 1];
+    // 指针都先从边界开始
+    int low = left - 1, high = right + 1;
     // 将序列中比基准小的移到基准左边，大的移到右边
-    while (true) {
-        while (array[++low] < array[pivot]);
-        while (array[--high] > array[pivot]);
+    while (low < high) {
+        while (array[++low] < pivot);
+        while (array[--high] > pivot);
         if (low < high)
             swap(array[low], array[high]);
-        else
-            break;        
     }
-    // 将 pivot 换到正确的位置
-    swap(array[low], array[right - 1]);
-    qSort(array, left, low - 1);
-    qSort(array, low + 1, right);
+    qSort(array, left, high);
+    qSort(array, high + 1, right);
 }
 /**
  * @brief 快速排序 ==> 时间复杂度O(nlog n), 空间复杂度O(log n)
@@ -272,35 +251,135 @@ void HeapSort(int array[], int N) {
     }
 }
 
-
 /**
- * @brief 桶排序：事先知道序列中记录都位于某个小区间段[0, m]内
+ * @brief 桶排序：先知道序列中记录都位于某个小区间段[0, m]内
  *        将具有相同值的记录都分配到同一个桶中，然后依次按照编号从桶中取出记录，组成有序序列
  *        时间复杂度O(n + m) 空间复杂度O(n + m)，适用于m相对于n很小的情况
- * @param array 待排数组
- * @param n 序列个数
- * @param m 区间
+ * @param array 
+ * @param n 
  */
-void bucketSort(int array[], int n, int m) {
-    // 临时数组
-    int* temp = new int[n];
-    // 桶容量计数器
-    int* count = new int[m];
-    // 把数组拷贝到临时数组中
-    for (int i = 0; i < n; i++) 
-        temp[i] = array[i];
-    // 桶计数器进行初始化
-    for (int i = 0; i < m; i++) 
-        count[i] = 0;
-    // 统计每个元素出现次数
-    for (int i = 0; i < n; i++) 
-        count[array[i]]++;
-    // 统计小于等于i的元素个数
-    for (int i = 1; i < m; i++) 
+// 桶的默认数量
+int DEFAULT_BUCKET_SIZE = 5;
+void bucketSort(int array[], int n) {
+    if (n < 1)
+        return;
+    int max_element = array[0];
+    int min_element = array[0];
+
+    // 找出数组的最大值和最小值
+    for (int i = 1; i < n; i++) {
+        max_element = max(max_element, array[i]);
+        min_element = min(min_element, array[i]);
+    }
+    int bucketSize = DEFAULT_BUCKET_SIZE;
+    int bucketCount = ((max_element - min_element) / bucketSize) + 1;
+
+    vector<vector<int>> buckets(bucketCount);
+    vector<int> res;
+    // 利用映射函数将数据分配到各个桶中
+    for (int i = 0; i < n; i++)
+        buckets[(array[i] - min_element) / bucketSize].push_back(array[i]);
+
+    for (int i = 0; i < buckets.size(); i++) {
+        // 每个桶内部进行排序
+        sort(buckets[i].begin(), buckets[i].end());
+        for (int j = 0; j < buckets[i].size(); j++)
+            res.push_back(buckets[i][j]);
+    }
+
+    // 将vector中数据覆盖到原数组
+    for (int i = 0; i < res.size(); i++)
+        array[i] = res[i];
+}
+
+/**
+ * @brief 计数排序
+ * @param array 
+ * @param n 
+ */
+void countSort(int array[], int n) {
+    if (n < 1)
+        return;
+    // 1. 得到数组的最大值和最小值，算出差值
+    int max_element = array[0];
+    int min_element = array[0];
+    for (int i = 1; i < n; i++) {
+        max_element = max(max_element, array[i]);
+        min_element = min(min_element, array[i]);
+    }
+    int d = max_element - min_element;
+    // 2. 创建统计数组并计算统计对应元素个数
+    int *count = new int[d + 1];
+    for (int i = 0; i < n; i++)
+        count[array[i] - min_element]++;
+    // 3. 统计数组变形，后面的元素等于前面的元素之和 ==> 使排序稳定的一种策略
+    for (int i = 1; i < d + 1; i++) 
         count[i] = count[i] + count[i - 1];
-    // 从尾部开始按照位置填充进数组(确定位置放进去)
+
+    // 4. 倒序遍历原始数组，从统计数组找到正确位置，输出到结果数组
+    int *sortedArray = new int[n];
     for (int i = n - 1; i >= 0; i--) 
-        array[--count[temp[i]]] = temp[i];
+        sortedArray[--count[array[i] - min_element]] = array[i];
+
+    for (int i = 0; i < n; i++)
+        array[i] = sortedArray[i];
+    delete[] sortedArray;
 }
 
 
+/**
+ * @brief 获取数组array中数据最大位数
+ * @param array 
+ * @param n 
+ * @return int 
+ */
+int maxbit(int array[], int n) {
+    if (n < 1)
+        return 0;
+    int max_element = array[0];
+    for (int i = 1; i < n; i++) 
+        max_element = max(max_element, array[i]);
+    int d = 0;
+    while(max_element > 0) {
+        max_element /= 10;
+        d++;
+    }
+    return d;
+}
+
+/**
+ * @brief 基数排序
+ * @param array 
+ * @param n 
+ */
+void radixSort(int array[], int n) {
+    int d = maxbit(array, n);
+    int* temp = new int[n];
+    // 计数器
+    int* count = new int[10];
+    int radix = 1;
+    // 进行d次排序
+    for (int i = 0; i < d; i++) {
+        // 每次分配前清空计数器
+        for (int j = 0; j < 10; j++) 
+            count[j] = 0;
+        for (int j = 0; j < n; j++) {
+            int k = (array[j] / radix) % 10;
+            count[k]++;
+        }
+        // 将temp中位置依次分配给每个桶
+        for (int j = 1; j < 10; j++)
+            count[j] = count[j] + count[j - 1];
+        // 将所有桶中记录依次收集到temp中
+        for (int j = n - 1; j >= 0; j--) {
+            int k = (array[j] / radix) % 10;
+            temp[count[k] - 1] = array[j];
+            count[k]--;
+        }
+        // 将临时数组的内容复制到原数组
+        for (int j = 0; j < n; j++)
+            array[j] = temp[j];
+        
+        radix *= 10;
+    }
+}
