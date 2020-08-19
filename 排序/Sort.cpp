@@ -19,7 +19,7 @@ using namespace std;
  * @param array 
  * @param n 
  */
-void bullleSort (int array[], int n) {
+void bubbleSort (int array[], int n) {
     // 开始进行遍历 ==>控制判断的次数
     for (int i = 0; i < n; i++) {
         bool flag = false;  // 记录有无数据交换
@@ -274,7 +274,7 @@ void bucketSort(int array[], int n) {
     int bucketSize = DEFAULT_BUCKET_SIZE;
     int bucketCount = ((max_element - min_element) / bucketSize) + 1;
 
-    vector<vector<int>> buckets(bucketCount);
+    vector<vector<int> > buckets(bucketCount);
     vector<int> res;
     // 利用映射函数将数据分配到各个桶中
     for (int i = 0; i < n; i++)
